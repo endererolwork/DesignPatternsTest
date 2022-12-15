@@ -27,9 +27,11 @@ public class InputHandler : MonoBehaviour
 
 
     private ShuffleBag<Command> commandBag;
-    
+
+    private float _fiveSecondDelay = 0f;
 
     public int MovementRange = 4;  //gidebileceði max range
+   
 
     private void Start()
     {
@@ -50,12 +52,24 @@ public class InputHandler : MonoBehaviour
 
     private void Update()
     {
+       
         ReadInput();
+
+
+
+        _fiveSecondDelay += Time.deltaTime;
+        if (_fiveSecondDelay >= 4)
+        {
+            _fiveSecondDelay = _fiveSecondDelay % 5f;
+            ShuffleInputs(commandBag);
+        }
     }
 
+   
 
     void ReadInput()
     {
+
         if(Input.GetKeyDown(KeyCode.W))
         {
             buttonW.Execute(boxTransform, buttonW);
@@ -76,15 +90,17 @@ public class InputHandler : MonoBehaviour
         {
             buttonR.Execute(boxTransform, buttonR);
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ShuffleInputs(commandBag);
-        }
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    ShuffleInputs(commandBag);
+        //}
+
     }
 
 
     void ShuffleInputs(ShuffleBag<Command> bag)
     {
+        
         buttonW = bag.Next();
         buttonA = bag.Next();
         buttonS = bag.Next();

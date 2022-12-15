@@ -5,8 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-   public void ChangeChene()
+    private void OnTriggerEnter(Collider other)
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene(1);
     }
+
 }
