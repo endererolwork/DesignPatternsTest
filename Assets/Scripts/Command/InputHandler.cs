@@ -19,7 +19,7 @@ public class InputHandler : MonoBehaviour
 
     public UnityEngine.UI.Button ShuffleButton, UndoButton;
     
-    private Command buttonW, buttonA, buttonS, buttonD, buttonR;
+    private Command buttonW, buttonA, buttonS, buttonD, buttonR, buttonSpace;
     private List<Command> buttonList = new List<Command>();
     private List<Command> commandList = new List<Command>()
         {new MoveForward(), new MoveBackward(), new MoveRight(), new MoveLeft()};
@@ -31,7 +31,11 @@ public class InputHandler : MonoBehaviour
     private float _fiveSecondDelay = 0f;
 
     public int MovementRange = 4;  //gidebileceði max range
-   
+
+    [SerializeField] private float _rollSpeed = 2f;
+
+    private bool _isMoving;
+
 
     private void Start()
     {
@@ -52,6 +56,7 @@ public class InputHandler : MonoBehaviour
 
     private void Update()
     {
+        if (_isMoving) return;
        
         ReadInput();
 
@@ -65,26 +70,29 @@ public class InputHandler : MonoBehaviour
         }
     }
 
-   
 
     void ReadInput()
     {
 
-        if(Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             buttonW.Execute(boxTransform, buttonW);
+            Assamble(Vector3.forward);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             buttonA.Execute(boxTransform, buttonA);
+            Assamble(Vector3.left);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
             buttonS.Execute(boxTransform, buttonS);
+            Assamble(Vector3.back);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
             buttonD.Execute(boxTransform, buttonD);
+            Assamble(Vector3.right);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -94,6 +102,14 @@ public class InputHandler : MonoBehaviour
         //{
         //    ShuffleInputs(commandBag);
         //}
+
+        void Assamble(Vector3 dir)
+        {
+            var anchor = transform.position + (Vector3.down + dir) * 0.5f;
+            var axis = Vector3.Cross(Vector3.up, dir);
+            
+            StartCoroutine(Roll(anchor, axis));
+        }
 
     }
 
@@ -107,6 +123,19 @@ public class InputHandler : MonoBehaviour
         buttonD = bag.Next();
         UpdateUI();
     }
+    IEnumerator Roll(Vector3 anchor, Vector3 axis)
+    {
+        _isMoving = true;
+
+        for (int i = 0; i < (90 / _rollSpeed); i++)
+        {
+            transform.RotateAround(anchor, axis, _rollSpeed);
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        _isMoving = false;
+    }
+
 
 
     void UpdateUI()
