@@ -12,8 +12,6 @@ namespace CommandPattern
 
         public virtual void Undo(Transform actorTransform) { }
 
-        public virtual void Redo(Transform actorTransform) { } // yazmadım daha
-
         public abstract class MoveCommand : Command
         {
 
@@ -30,7 +28,6 @@ namespace CommandPattern
                 if (z > bound || z < -bound) return true;
                 return false;
             }
-
 
         }
 

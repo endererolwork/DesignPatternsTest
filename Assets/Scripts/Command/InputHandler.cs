@@ -1,4 +1,6 @@
 using CommandPattern;
+using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -19,12 +21,13 @@ public class InputHandler : MonoBehaviour
 
     public UnityEngine.UI.Button ShuffleButton, UndoButton;
     
-    private Command buttonW, buttonA, buttonS, buttonD, buttonR, buttonSpace;
+    private Command buttonW, buttonA, buttonS, buttonD, buttonR, buttonSpace, buttonT;
     private List<Command> buttonList = new List<Command>();
     private List<Command> commandList = new List<Command>()
         {new MoveForward(), new MoveBackward(), new MoveRight(), new MoveLeft()};
 
-
+    private Rigidbody rb;
+    private GameObject _myCube;
 
     private ShuffleBag<Command> commandBag;
 
@@ -34,11 +37,15 @@ public class InputHandler : MonoBehaviour
 
     [SerializeField] private float _rollSpeed = 2f;
 
+    public float _jumpSpeed = 1f;
+
     private bool _isMoving;
+    private bool _isGrounded;
 
 
     private void Start()
     {
+        rb = GetComponent<Rigidbody>(); 
         boxTransform = GetComponent<Transform>();
         commandBag = new ShuffleBag<Command>(commandList.Count);
         foreach ( Command c in commandList)
@@ -54,20 +61,29 @@ public class InputHandler : MonoBehaviour
     }
 
 
-    private void Update()
+    public void Update()
     {
         if (_isMoving) return;
        
         ReadInput();
 
-
-
-        _fiveSecondDelay += Time.deltaTime;
-        if (_fiveSecondDelay >= 4)
+        if(_isGrounded)
         {
-            _fiveSecondDelay = _fiveSecondDelay % 5f;
-            ShuffleInputs(commandBag);
+            
         }
+       
+
+        //_fiveSecondDelay += Time.deltaTime;
+        //if (_fiveSecondDelay >= 4)
+        //{
+        //    _fiveSecondDelay = _fiveSecondDelay % 5f;
+        //    ShuffleInputs(commandBag);
+        //}
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+      
     }
 
 
@@ -77,42 +93,58 @@ public class InputHandler : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W))
         {
             buttonW.Execute(boxTransform, buttonW);
-            Assamble(Vector3.forward);
+            //Assamble(Vector3.forward);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             buttonA.Execute(boxTransform, buttonA);
-            Assamble(Vector3.left);
+            //Assamble(Vector3.left);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
             buttonS.Execute(boxTransform, buttonS);
-            Assamble(Vector3.back);
+            //Assamble(Vector3.back);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
             buttonD.Execute(boxTransform, buttonD);
-            Assamble(Vector3.right);
+            //Assamble(Vector3.right);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
             buttonR.Execute(boxTransform, buttonR);
         }
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    ShuffleInputs(commandBag);
-        //}
 
-        void Assamble(Vector3 dir)
+        if (Input.GetKeyDown(KeyCode.T))
         {
-            var anchor = transform.position + (Vector3.down + dir) * 0.5f;
-            var axis = Vector3.Cross(Vector3.up, dir);
-            
-            StartCoroutine(Roll(anchor, axis));
+            ShuffleInputs(commandBag);
         }
+        if (Input.GetKey(KeyCode.Space))
+        {
+            Jump();
+        }
+
 
     }
 
+       public void Assamble(Vector3 dir)
+        {
+            var anchor = transform.position + (Vector3.down + dir) * 0.5f;
+
+            var axis = Vector3.Cross(Vector3.up, dir);
+            
+
+            StartCoroutine(Roll(anchor, axis));
+        }
+
+
+    public void Jump()
+    {
+        rb.velocity = Vector3.up * _jumpSpeed * 4;
+
+        
+
+    }
 
     void ShuffleInputs(ShuffleBag<Command> bag)
     {
